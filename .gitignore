@@ -1,0 +1,14 @@
+# Ambiente virtual
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Banco de dados gerado pelo pipeline
+*.db
+
+# Arquivos do editor / sistema
+.vscode/
+.idea/
+.DS_Store
