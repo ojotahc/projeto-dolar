@@ -19,16 +19,28 @@ def transformar(df: pd.DataFrame) -> pd.DataFrame:
     df["dataHoraCotacao"] = pd.to_datetime(df["dataHoraCotacao"])
     df["data"] = df["dataHoraCotacao"].dt.date
     df = df.rename(columns={
-    "cotacaoCompra": "cotacao_compra",
-    "cotacaoVenda": "cotacao_venda",
+        "cotacaoCompra": "cotacao_compra",
+        "cotacaoVenda": "cotacao_venda",
 })
     df = df.drop(columns="dataHoraCotacao")
+    df = df.drop_duplicates(subset="data")
+    df = df.dropna() # remove qualquer linha que tenha pelo menos um valor nulo, em qualquer coluna.
+    df = df.sort_values("data") # ordena as linhas da data mais antiga para a mais nova
+    df = df.reset_index(drop=True) # refaz o índice (0, 1, 2...) e descarta o antigo
     return df
 
 if __name__ == "__main__":
     bruto = extrair()
     limpo = transformar(bruto)
-    print(limpo.columns)
-    print(limpo.head())
+    print(bruto.shape)
+    print(limpo.shape)
+    
+    print(limpo.head()) # mostra as 5 primeiras linhas.
+    print(limpo.tail()) # mostra as 5 últimas.
+
+    # print(limpo.duplicated(subset="data").sum())
+    # print(limpo.isna().sum())
+    # print(limpo.columns)
     # print(limpo[["dataHoraCotacao", "data"]].head())
     # print(limpo["data"].dtype)
+
