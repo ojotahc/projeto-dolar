@@ -17,7 +17,7 @@ def extrair() -> pd.DataFrame:
 def transformar(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["dataHoraCotacao"] = pd.to_datetime(df["dataHoraCotacao"])
-    df["data"] = df["dataHoraCotacao"].dt.date
+    df["data"] = df["dataHoraCotacao"].dt.date # .dt abre o “acessador de datas” do pandas. Ele só existe em colunas do tipo datetime
     df = df.rename(columns={
         "cotacaoCompra": "cotacao_compra",
         "cotacaoVenda": "cotacao_venda",
@@ -27,6 +27,9 @@ def transformar(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna() # remove qualquer linha que tenha pelo menos um valor nulo, em qualquer coluna.
     df = df.sort_values("data") # ordena as linhas da data mais antiga para a mais nova
     df = df.reset_index(drop=True) # refaz o índice (0, 1, 2...) e descarta o antigo
+    df["ano"] = pd.to_datetime(df["data"]).dt.year
+    df["mes"] = pd.to_datetime(df["data"]).dt.month
+    df["variacao_diaria"] = df["cotacao_venda"].pct_change() * 100
     return df
 
 if __name__ == "__main__":
@@ -37,6 +40,7 @@ if __name__ == "__main__":
     
     print(limpo.head()) # mostra as 5 primeiras linhas.
     print(limpo.tail()) # mostra as 5 últimas.
+    print(limpo.dtypes)
 
     # print(limpo.duplicated(subset="data").sum())
     # print(limpo.isna().sum())
