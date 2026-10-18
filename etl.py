@@ -1,5 +1,6 @@
 import requests # chamadas para api
 import pandas as pd
+import sqlite3
 
 URL = (
     "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/"
@@ -7,6 +8,8 @@ URL = (
     "?@dataInicial='01-01-2026'&@dataFinalCotacao='09-30-2026'"
     "&$format=json"
 )
+
+DB = "cotacoes.db"
 
 def extrair() -> pd.DataFrame:
     resposta = requests.get(URL, timeout=30)
@@ -32,19 +35,17 @@ def transformar(df: pd.DataFrame) -> pd.DataFrame:
     df["variacao_diaria"] = df["cotacao_venda"].pct_change() * 100
     return df
 
+def carregar(df: pd.DataFrame) -> None:
+    conexao = sqlite3.connect(DB)
+    df.to_sql("cotacoes", conexao, if_exists="replace", index=False)
+    conexao.close()
+
+
 if __name__ == "__main__":
     bruto = extrair()
     limpo = transformar(bruto)
-    print(bruto.shape)
-    print(limpo.shape)
-    
-    print(limpo.head()) # mostra as 5 primeiras linhas.
-    print(limpo.tail()) # mostra as 5 últimas.
-    print(limpo.dtypes)
+    carregar(limpo)
+    print("Pipeline concluído")
 
-    # print(limpo.duplicated(subset="data").sum())
-    # print(limpo.isna().sum())
-    # print(limpo.columns)
-    # print(limpo[["dataHoraCotacao", "data"]].head())
-    # print(limpo["data"].dtype)
+
 
